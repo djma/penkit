@@ -3,6 +3,8 @@
 
 import numpy as np
 
+LIFT = ([np.nan], [np.nan])
+
 def rotate_texture(texture, rotation, x_offset=0.5, y_offset=0.5):
     """Rotates the given texture by a given angle.
 
@@ -24,7 +26,7 @@ def rotate_texture(texture, rotation, x_offset=0.5, y_offset=0.5):
     return x_rot + x_offset, y_rot + y_offset
 
 
-def fit_texture(layer):
+def fit_texture(layer, preserve_ratio=True):
     """Fits a layer into a texture by scaling each axis to (0, 1).
 
     Does not preserve aspect ratio (TODO: make this an option).
@@ -36,8 +38,14 @@ def fit_texture(layer):
         texture: A texture.
     """
     x, y = layer
-    x = (x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x))
-    y = (y - np.nanmin(y)) / (np.nanmax(y) - np.nanmin(y))
+    x_size = np.nanmax(x) - np.nanmin(x)
+    y_size = np.nanmax(y) - np.nanmin(y)
+    if preserve_ratio:
+        x = (x - np.nanmin(x)) / max(x_size, y_size)
+        y = (y - np.nanmin(y)) / max(x_size, y_size)
+    else:
+        x = (x - np.nanmin(x)) / x_size
+        y = (y - np.nanmin(y)) / y_size
     return x, y
 
 def concat(layers):
@@ -99,3 +107,15 @@ def vflip(layer):
 
     x = -x + 2*np.nanmean(x)
     return x,y
+
+def polar_to_cartesian(polar_layer):
+    """
+    Converts ([r], [theta]) to ([x], [y]), assuming a center of 0,0
+    """
+    r, theta = polar_layer
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
+    return x, y
+
+def distance(p1, p2):
+    return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)

@@ -1,4 +1,5 @@
 import numpy as np
+from .textures.util import polar_to_cartesian
 
 def arc(center, radius, start_angle, end_angle, resolution=100):
     """Draws an arc
@@ -81,4 +82,3 @@ def ngon(n, origin=(0,0), diameter=1.0, resolution=2):
     )
 
     return ngon_layer
-
